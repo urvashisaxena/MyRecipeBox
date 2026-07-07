@@ -1,5 +1,9 @@
-name: Deploy to GitHub Pages
+name: Publish to GitHub Pages
 
+# The site is the repo root (fully static), so publishing is just keeping the
+# gh-pages branch in sync with the latest source. GitHub Pages serves gh-pages
+# automatically; the default workflow token may not create a Pages site via
+# actions/deploy-pages, which is why the branch-based flow is used instead.
 on:
   push:
     branches:
@@ -8,27 +12,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Push this commit to gh-pages
+        run: git push --force origin HEAD:gh-pages
