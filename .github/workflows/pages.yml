@@ -1,0 +1,27 @@
+name: Publish to GitHub Pages
+
+# The site is the repo root (fully static), so publishing is just keeping the
+# gh-pages branch in sync with the latest source. GitHub Pages serves gh-pages
+# automatically; the default workflow token may not create a Pages site via
+# actions/deploy-pages, which is why the branch-based flow is used instead.
+on:
+  push:
+    branches:
+      - main
+      - claude/virtual-recipe-book-89fm66
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Push this commit to gh-pages
+        run: git push --force origin HEAD:gh-pages
