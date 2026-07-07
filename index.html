@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#4a1119" />
+<title>रसोई की विरासत · MyRecipeBox</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- Shared SVG defs: jharokha arch clip, ornaments -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="jharokha" clipPathUnits="objectBoundingBox">
+      <path d="M0,1 L0,0.46 C0,0.20 0.16,0.115 0.33,0.095 C0.42,0.084 0.465,0.055 0.5,0 C0.535,0.055 0.58,0.084 0.67,0.095 C0.84,0.115 1,0.20 1,0.46 L1,1 Z"/>
+    </clipPath>
+    <symbol id="paisley" viewBox="0 0 100 100">
+      <path d="M62 8 C88 18 94 48 80 68 C68 85 44 92 30 84 C16 76 14 58 24 50 C34 42 50 46 54 58 C57 67 50 74 43 72 C38 70 37 64 41 62"
+            fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="47" cy="65" r="2.6" fill="currentColor"/>
+      <path d="M62 8 C50 14 42 24 40 36" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="boota" viewBox="0 0 40 40">
+      <path d="M20 4 C26 10 30 16 30 23 A10 10 0 1 1 10 23 C10 16 14 10 20 4 Z" fill="none" stroke="currentColor" stroke-width="2.4"/>
+      <circle cx="20" cy="24" r="3" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-hindi">रसोई</span>
+    <span class="brand-en">MyRecipeBox <em>· a family heirloom</em></span>
+  </div>
+  <div class="top-actions">
+    <button id="btn-add" class="btn btn-gold" type="button">✚ Add Recipe</button>
+    <button id="btn-pdf" class="btn" type="button">⤓ Download PDF</button>
+    <button id="btn-settings" class="btn btn-ghost" type="button" title="Dedication & family name">✒ Dedication</button>
+    <button id="btn-sound" class="btn btn-ghost" type="button" title="Page-turn sound">🔊</button>
+  </div>
+</header>
+
+<main id="stage">
+  <button id="nav-prev" class="nav-arrow" type="button" aria-label="Previous page">‹</button>
+  <div id="book-wrap">
+    <div id="book-shadow" aria-hidden="true"></div>
+    <div id="book-edges-left" class="book-edges" aria-hidden="true"></div>
+    <div id="book-edges-right" class="book-edges" aria-hidden="true"></div>
+    <div id="book"></div>
+  </div>
+  <button id="nav-next" class="nav-arrow" type="button" aria-label="Next page">›</button>
+</main>
+
+<footer class="pagebar">
+  <span id="page-indicator">—</span>
+  <span class="pagebar-hint">drag a page corner, or use ← → · click a recipe in the index to jump</span>
+</footer>
+
+<!-- offscreen measurer for pagination -->
+<div id="measurer" aria-hidden="true"></div>
+
+<!-- ============ Add / Edit Recipe modal ============ -->
+<div class="modal-backdrop" id="recipe-modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recipe-modal-title">
+    <div class="modal-head">
+      <h2 id="recipe-modal-title">Add a recipe to the book</h2>
+      <button class="modal-close" id="recipe-modal-close" type="button" aria-label="Close">✕</button>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="write" type="button">✍ Write</button>
+      <button class="tab" data-tab="paste" type="button">📋 Paste text</button>
+      <button class="tab" data-tab="voice" type="button">🎙 Voice</button>
+      <button class="tab" data-tab="file" type="button">📄 File</button>
+    </div>
+
+    <!-- Paste panel -->
+    <section class="tab-panel" data-panel="paste" hidden>
+      <p class="panel-hint">Paste a whole recipe below — I'll sort it into title, ingredients and method. Headings like “Ingredients” / “Method” / “सामग्री” / “विधि” help.</p>
+      <textarea id="paste-box" rows="8" placeholder="Nani's Kheer&#10;&#10;Ingredients&#10;1 litre full-cream milk&#10;…&#10;&#10;Method&#10;Simmer the milk…"></textarea>
+      <div class="row-end">
+        <button class="btn btn-gold" id="paste-parse" type="button">Sort into recipe ↓</button>
+      </div>
+    </section>
+
+    <!-- Voice panel -->
+    <section class="tab-panel" data-panel="voice" hidden>
+      <p class="panel-hint">Speak the recipe — or record an elder telling it. The words are transcribed live, and you can keep the recording itself in the book.</p>
+      <div class="voice-row">
+        <button class="btn btn-rec" id="voice-btn" type="button">● Start recording</button>
+        <select id="voice-lang" title="Spoken language">
+          <option value="en-IN">English (India)</option>
+          <option value="hi-IN">हिन्दी</option>
+          <option value="en-US">English (US)</option>
+        </select>
+        <label class="chk"><input type="checkbox" id="voice-keep" checked /> keep the audio in the book</label>
+      </div>
+      <div id="voice-status" class="voice-status"></div>
+      <textarea id="voice-transcript" rows="5" placeholder="Transcript appears here while you speak…"></textarea>
+      <div class="row-end wrap">
+        <span class="panel-hint">Add transcript to:</span>
+        <button class="btn btn-sm" data-voice-to="story" type="button">Story</button>
+        <button class="btn btn-sm" data-voice-to="ingredients" type="button">Ingredients</button>
+        <button class="btn btn-sm" data-voice-to="steps" type="button">Method</button>
+        <button class="btn btn-sm btn-gold" data-voice-to="auto" type="button">Sort automatically</button>
+      </div>
+    </section>
+
+    <!-- File panel -->
+    <section class="tab-panel" data-panel="file" hidden>
+      <p class="panel-hint">Drop or choose files: a recipe as <b>.txt / .md</b>, an <b>audio</b> recording, or <b>photos</b>.</p>
+      <div id="dropzone" class="dropzone">
+        <span>Drop files here, or</span>
+        <label class="btn btn-sm">browse… <input type="file" id="file-any" multiple accept=".txt,.md,text/plain,text/markdown,audio/*,image/*" hidden /></label>
+      </div>
+    </section>
+
+    <!-- Structured form (always visible) -->
+    <form id="recipe-form" autocomplete="off">
+      <div class="grid-2">
+        <label class="field span-2">
+          <span>Recipe name *</span>
+          <input type="text" id="f-title" required placeholder="e.g. Nani ka Aam ka Achaar" />
+        </label>
+        <label class="field">
+          <span>From the kitchen of</span>
+          <input type="text" id="f-origin" placeholder="e.g. Nani · Lucknow" />
+        </label>
+        <label class="field">
+          <span>Chapter</span>
+          <select id="f-category">
+            <option>Nashta · नाश्ता</option>
+            <option>Sabzi & Dal · सब्ज़ी और दाल</option>
+            <option>Roti & Chawal · रोटी और चावल</option>
+            <option>Mithai · मिठाई</option>
+            <option>Achaar & Chutney · अचार</option>
+            <option>Sharbat · शरबत</option>
+            <option>Other · अन्य</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Serves</span>
+          <input type="text" id="f-serves" placeholder="4–6" />
+        </label>
+        <label class="field">
+          <span>Time</span>
+          <input type="text" id="f-time" placeholder="45 min" />
+        </label>
+        <label class="field span-2">
+          <span>Why this recipe is special — its story</span>
+          <textarea id="f-story" rows="4" placeholder="Who made it, when it was cooked, what it means to your family…"></textarea>
+        </label>
+        <label class="field">
+          <span>Ingredients <small>(one per line)</small></span>
+          <textarea id="f-ingredients" rows="8" placeholder="500 g khoya&#10;250 g boora&#10;8 green cardamoms…"></textarea>
+        </label>
+        <label class="field">
+          <span>Method <small>(one step per line)</small></span>
+          <textarea id="f-steps" rows="8" placeholder="Knead the khoya smooth.&#10;Roast on low heat till fragrant…"></textarea>
+        </label>
+      </div>
+
+      <div class="photos-block">
+        <div class="photos-head">
+          <span>Photographs <small id="photo-count">(0 / 6)</small></span>
+          <label class="btn btn-sm">＋ add photos <input type="file" id="f-photos" accept="image/*" multiple hidden /></label>
+        </div>
+        <div id="photo-strip" class="photo-strip"></div>
+      </div>
+
+      <div id="audio-block" class="audio-block" hidden>
+        <span>🎙 Voice memory attached</span>
+        <audio id="audio-preview" controls></audio>
+        <button class="btn btn-sm btn-ghost" id="audio-remove" type="button">remove</button>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="recipe-delete" type="button" hidden>🗑 Remove from book</button>
+        <span class="spacer"></span>
+        <button class="btn" id="recipe-cancel" type="button">Cancel</button>
+        <button class="btn btn-gold" id="recipe-save" type="submit">Bind into the book</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ Dedication / settings modal ============ -->
+<div class="modal-backdrop" id="settings-modal" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-head">
+      <h2 id="settings-title">The family & the dedication</h2>
+      <button class="modal-close" id="settings-close" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="grid-1 pad">
+      <label class="field">
+        <span>Family name <small>(appears on the cover)</small></span>
+        <input type="text" id="s-family" placeholder="e.g. Saxena" />
+      </label>
+      <label class="field">
+        <span>Dedication</span>
+        <textarea id="s-dedication" rows="5"></textarea>
+      </label>
+      <div class="row-end">
+        <button class="btn btn-gold" id="settings-save" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<script src="vendor/page-flip.browser.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
