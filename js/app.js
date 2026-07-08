@@ -37,6 +37,20 @@ let PW = BASE_W, PH = Math.round(BASE_W * PAGE_RATIO), FS = 16;
 let recipeStart = new Map();   // recipe id -> page index
 let totalPages = 0;
 
+/* PageFlip's disableFlipByClick guard also blocks programmatic flips whose
+   synthetic start point misses a page corner (flipPrev in portrait mode
+   never hits one). Lift the flag around every programmatic flip. */
+function animFlip(fn) {
+  if (!pageFlip) return;
+  const settings = pageFlip.getSettings ? pageFlip.getSettings() : null;
+  const saved = settings ? settings.disableFlipByClick : undefined;
+  if (settings) settings.disableFlipByClick = false;
+  try { fn(); } finally { if (settings) settings.disableFlipByClick = saved; }
+}
+const goPrev = () => animFlip(() => pageFlip.flipPrev());
+const goNext = () => animFlip(() => pageFlip.flipNext());
+const goTo = (i) => animFlip(() => pageFlip.flip(i));
+
 /* ───────────────────────── helpers ───────────────────────── */
 
 function el(tag, cls, text) {
@@ -88,6 +102,9 @@ function makeContentPage(cls, runnerText) {
   const { page, inner } = makePage(cls);
   inner.appendChild(svgUse('#boota', 'corner-boota tl'));
   inner.appendChild(svgUse('#boota', 'corner-boota tr'));
+  inner.appendChild(svgUse('#boota', 'corner-boota bl'));
+  inner.appendChild(svgUse('#boota', 'corner-boota br'));
+  if (cls && cls.indexOf('page-body') !== -1) inner.appendChild(svgUse('#degchi', 'watermark'));
   if (runnerText) inner.appendChild(el('div', 'runner', runnerText));
   const flow = el('div', 'flow');
   inner.appendChild(flow);
@@ -147,8 +164,10 @@ function splitLong(text, maxLen) {
 function buildCover() {
   const { page, inner } = makePage('page-cover');
   page.setAttribute('data-density', 'hard');
+  inner.appendChild(svgUse('#genda', 'cover-garland top'));
+  inner.appendChild(svgUse('#genda', 'cover-garland bot'));
   const med = el('div', 'cover-medallion');
-  med.appendChild(svgUse('#paisley'));
+  med.appendChild(svgUse('#chai-samosa'));
   inner.appendChild(med);
   inner.appendChild(el('div', 'cover-hindi', 'रसोई की विरासत'));
   inner.appendChild(el('div', 'cover-title', 'The Family Recipe Book'));
@@ -162,13 +181,14 @@ function buildCover() {
 function buildBackCover() {
   const { page, inner } = makePage('page-cover');
   page.setAttribute('data-density', 'hard');
-  inner.appendChild(svgUse('#paisley', 'cover-back-motif'));
+  inner.appendChild(svgUse('#chai-samosa', 'cover-back-motif'));
   inner.appendChild(el('div', 'cover-tag', 'made with love, kept forever'));
   return page;
 }
 
 function buildDedication() {
   const { page, flow } = makeContentPage('page-dedication');
+  flow.appendChild(svgUse('#genda', 'ded-garland'));
   flow.appendChild(el('div', 'ded-hindi', '॥ अन्नपूर्णा को प्रणाम ॥'));
   const fam = state.settings.family && state.settings.family.trim();
   flow.appendChild(el('div', 'ded-family', fam ? `The ${fam} Family` : 'Our Family'));
@@ -181,9 +201,10 @@ function buildDedication() {
 
 function buildTocPages() {
   const entries = state.recipes.map((r) => {
+    const row = el('div', 'toc-row');
     const b = el('button', 'toc-entry');
     b.type = 'button';
-    b.dataset.rid = r.id;
+    row.dataset.rid = r.id;
     const name = el('span', 'toc-name', r.title);
     name.appendChild(el('span', 'toc-cat', (r.category || '').split('·')[0].trim() + (r.origin ? ' — ' + r.origin : '')));
     b.appendChild(name);
@@ -192,14 +213,21 @@ function buildTocPages() {
     b.addEventListener('click', (ev) => {
       ev.stopPropagation();
       const idx = recipeStart.get(r.id);
-      if (idx !== undefined && pageFlip) pageFlip.flip(idx);
+      if (idx !== undefined) goTo(idx);
     });
-    return b;
+    const edit = el('button', 'toc-edit', '✎');
+    edit.type = 'button';
+    edit.title = 'Edit “' + r.title + '”';
+    edit.addEventListener('click', (ev) => { ev.stopPropagation(); openRecipeModal(r.id); });
+    row.appendChild(b);
+    row.appendChild(edit);
+    return row;
   });
 
   const newTocPage = (i) => {
     const p = makeContentPage('page-toc');
     if (i === 0) {
+      p.flow.appendChild(svgUse('#degchi', 'toc-motif'));
       p.flow.appendChild(el('div', 'toc-title', 'ANUKRAMANIKA'));
       p.flow.appendChild(el('div', 'toc-sub', 'अनुक्रमणिका · the recipes within'));
     } else {
@@ -219,10 +247,11 @@ function buildTocPages() {
   return { pages: flowBlocks(entries, newTocPage), entries };
 }
 
+const FILLER_MOTIFS = ['#diya', '#chai-samosa', '#degchi', '#paisley'];
 function buildFiller(i) {
   const { page, flow } = makeContentPage('page-filler');
   const [hi, en] = PROVERBS[i % PROVERBS.length];
-  flow.appendChild(svgUse('#paisley', 'filler-motif'));
+  flow.appendChild(svgUse(FILLER_MOTIFS[i % FILLER_MOTIFS.length], 'filler-motif'));
   flow.appendChild(el('div', 'filler-hindi', hi));
   flow.appendChild(el('div', 'filler-en', en));
   return page;
@@ -230,7 +259,7 @@ function buildFiller(i) {
 
 function buildClosing() {
   const { page, flow } = makeContentPage('page-filler');
-  flow.appendChild(svgUse('#boota', 'filler-motif'));
+  flow.appendChild(svgUse('#diya', 'filler-motif'));
   flow.appendChild(el('div', 'filler-hindi', '॥ समाप्त ॥'));
   flow.appendChild(el('div', 'filler-en', 'The story continues in your kitchen.'));
   return page;
@@ -424,9 +453,9 @@ function assemblePages() {
     const folio = p.querySelector('.folio');
     if (folio) folio.textContent = '❧ ' + i + ' ❧';
   });
-  toc.entries.forEach(e => {
-    const idx = recipeStart.get(e.dataset.rid);
-    e.querySelector('.toc-num').textContent = idx !== undefined ? idx : '·';
+  toc.entries.forEach(row => {
+    const idx = recipeStart.get(row.dataset.rid);
+    row.querySelector('.toc-num').textContent = idx !== undefined ? idx : '·';
   });
 
   return pages;
@@ -718,7 +747,7 @@ async function saveRecipeFromForm(ev) {
   toast(existing ? 'Recipe updated.' : `“${title}” has been bound into the book.`);
   rebuildBook();
   const idx = recipeStart.get(recipe.id);
-  if (idx !== undefined) setTimeout(() => pageFlip && pageFlip.flip(idx), 150);
+  if (idx !== undefined) setTimeout(() => goTo(idx), 150);
 }
 
 /* ───────────────────────── voice ─────────────────────────── */
@@ -952,15 +981,15 @@ function bindUI() {
     }
   });
 
-  $('#nav-prev').addEventListener('click', () => pageFlip && pageFlip.flipPrev());
-  $('#nav-next').addEventListener('click', () => pageFlip && pageFlip.flipNext());
+  $('#nav-prev').addEventListener('click', goPrev);
+  $('#nav-next').addEventListener('click', goNext);
   document.addEventListener('keydown', (e) => {
     if (!$('#recipe-modal').hidden || !$('#settings-modal').hidden) {
       if (e.key === 'Escape') { closeRecipeModal(); $('#settings-modal').hidden = true; }
       return;
     }
-    if (e.key === 'ArrowLeft') pageFlip && pageFlip.flipPrev();
-    if (e.key === 'ArrowRight') pageFlip && pageFlip.flipNext();
+    if (e.key === 'ArrowLeft') goPrev();
+    if (e.key === 'ArrowRight') goNext();
   });
 
   // modal chrome

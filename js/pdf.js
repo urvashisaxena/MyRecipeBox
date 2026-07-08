@@ -82,10 +82,17 @@ function drawCover(doc, settings) {
   doc.setDrawColor(...GOLD2); doc.setLineWidth(1.4);
   doc.circle(W / 2, 200, 46, 'S');
   doc.circle(W / 2, 200, 52, 'S');
-  // paisley hint inside the medallion
-  doc.setLineWidth(1.2);
-  doc.ellipse(W / 2 - 4, 200, 18, 26, 'S');
-  doc.circle(W / 2 - 4, 210, 4, 'S');
+  // chai & samosas inside the medallion
+  const cx = W / 2;
+  doc.setLineWidth(1.3);
+  doc.triangle(cx - 34, 216, cx - 20, 190, cx - 6, 216, 'S');       // samosa, front
+  doc.lines([[12, -15], [11, 15]], cx - 14, 216, [1, 1], 'S');      // samosa, behind
+  doc.lines([[17, 0], [-2.5, 21], [-12, 0]], cx + 6, 190, [1, 1], 'S', true); // chai glass
+  doc.line(cx + 7.5, 197, cx + 21.5, 197);                          // tea line
+  doc.lines([[3, 3, 9, 4, 12, 2]], cx + 4, 219, [1, 1], 'S');       // saucer
+  doc.lines([[-2, -3, 3, -5, 0, -9]], cx + 12, 186, [1, 1], 'S');   // steam
+  doc.lines([[-2, -3, 3, -5, 0, -9]], cx + 19, 186, [1, 1], 'S');
+  doc.line(cx - 38, 224, cx + 38, 224);                             // plate
   doc.setTextColor(...GOLD2);
   doc.setFont('times', 'italic'); doc.setFontSize(13);
   doc.text('Rasoi ki Virasat - the heritage of our kitchen', W / 2, 292, { align: 'center' });
