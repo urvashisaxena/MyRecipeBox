@@ -62,7 +62,11 @@ body::before{
   box-shadow:0 2px 18px rgba(0,0,0,.5);
   position:relative; z-index:5; flex-wrap:wrap;
 }
-.brand{ display:flex; align-items:baseline; gap:.6rem; }
+.brand{ display:flex; align-items:center; gap:.55rem; }
+.brand-logo{
+  width:2.7rem; aspect-ratio:140/110; color:var(--gold-2);
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.55));
+}
 .brand-hindi{
   font-family:var(--hindi); font-size:1.7rem; color:var(--gold-2);
   text-shadow:0 1px 0 rgba(0,0,0,.6);
@@ -100,21 +104,37 @@ body::before{
 }
 #book-wrap{ position:relative; }
 #book{ position:relative; z-index:2; }
+/* warm lamp-glow pooling behind the open book */
+#book-wrap::before{
+  content:""; position:absolute; z-index:0; inset:-14% -18%;
+  background:radial-gradient(55% 55% at 50% 42%, rgba(255,196,110,.13), transparent 70%);
+  pointer-events:none;
+}
 #book-shadow{
-  position:absolute; z-index:0; left:4%; right:4%; bottom:-26px; height:46px;
-  background:radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.62), transparent 75%);
-  filter:blur(6px);
+  position:absolute; z-index:0; left:2%; right:2%; bottom:-30px; height:52px;
+  background:radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.72), rgba(0,0,0,.25) 55%, transparent 78%);
+  filter:blur(7px);
 }
 /* stacked page edges giving the closed-book thickness */
 .book-edges{
-  position:absolute; z-index:1; top:5px; bottom:5px; width:16px;
+  position:absolute; z-index:1; top:4px; bottom:2px; width:21px;
   background:
-    repeating-linear-gradient(90deg, #e9dcc0 0 1px, #cdbb95 1px 2px, #f2e7cd 2px 3px);
-  box-shadow:0 4px 10px rgba(0,0,0,.45);
-  border-radius:2px;
+    linear-gradient(180deg, rgba(120,85,35,.28), transparent 12% 88%, rgba(60,35,10,.4)),
+    repeating-linear-gradient(90deg, #efe2c4 0 1px, #c9b58c 1px 2px, #f4ead1 2px 3px, #d8c69d 3px 4px);
+  box-shadow:0 6px 14px rgba(0,0,0,.5);
+  border-radius:2px 0 0 2px;
 }
-#book-edges-left{ left:-13px; transform:skewY(2.5deg); }
-#book-edges-right{ right:-13px; transform:skewY(-2.5deg); }
+#book-edges-left{ left:-17px; transform:perspective(600px) rotateY(14deg) skewY(1.6deg); }
+#book-edges-right{ right:-17px; transform:perspective(600px) rotateY(-14deg) skewY(-1.6deg); border-radius:0 2px 2px 0; }
+/* the block of pages beneath the open spread */
+#book-bottom{
+  position:absolute; z-index:1; left:6px; right:6px; bottom:-9px; height:12px;
+  background:
+    linear-gradient(90deg, rgba(90,60,25,.45), transparent 8% 92%, rgba(90,60,25,.45)),
+    repeating-linear-gradient(180deg, #e9dcbb 0 1px, #c6b287 1px 2px, #f0e5c9 2px 3px);
+  border-radius:0 0 5px 5px;
+  box-shadow:0 5px 10px rgba(0,0,0,.45);
+}
 #book-wrap.open .book-edges{ opacity:1; }
 
 .nav-arrow{
@@ -138,6 +158,8 @@ body::before{
 .page-inner{
   position:relative; overflow:hidden;
   background:
+    /* paper-grain noise */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .1 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"),
     /* chikankari bel — faint tone-on-tone embroidery */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23bfa87a' stroke-width='1' opacity='.35'%3E%3Cpath d='M10 60 Q30 30 60 40 Q90 50 110 30'/%3E%3Cpath d='M60 40 q-4 -12 6 -18 q10 -6 12 4 q2 8 -8 10'/%3E%3Ccircle cx='30' cy='94' r='5'/%3E%3Cpath d='M30 82 q6 6 0 12 q-6 -6 0 -12'/%3E%3Cpath d='M88 88 c10 -2 16 6 12 14 c-8 4 -16 -2 -12 -14 z'/%3E%3C/g%3E%3C/svg%3E"),
     radial-gradient(120% 100% at 50% 0%, #faf3e3 0%, var(--ivory) 55%, var(--ivory-2) 100%);
@@ -153,13 +175,28 @@ body::before{
   border:1px solid rgba(156,124,46,.55);
   outline:2px solid rgba(156,124,46,.22); outline-offset:3px;
 }
-/* spine-side ageing */
+/* spine curvature: deep shade into the gutter, soft lift at the fore-edge */
 .page.--left .page-inner::after,
 .page.--right .page-inner::after{
-  content:""; position:absolute; top:0; bottom:0; width:3.2em; pointer-events:none;
+  content:""; position:absolute; top:0; bottom:0; width:5em; pointer-events:none;
 }
-.page.--left .page-inner::after{ right:0; background:linear-gradient(270deg, rgba(90,60,20,.16), transparent); }
-.page.--right .page-inner::after{ left:0; background:linear-gradient(90deg, rgba(90,60,20,.16), transparent); }
+.page.--left .page-inner::after{
+  right:0;
+  background:linear-gradient(270deg, rgba(70,42,12,.28), rgba(70,42,12,.09) 45%, transparent 80%);
+}
+.page.--right .page-inner::after{
+  left:0;
+  background:linear-gradient(90deg, rgba(70,42,12,.28), rgba(70,42,12,.09) 45%, transparent 80%);
+}
+.page.--left .page-inner{ box-shadow:inset 0 0 60px rgba(154,120,60,.16), inset 14px 0 22px -16px rgba(255,252,240,.9); }
+.page.--right .page-inner{ box-shadow:inset 0 0 60px rgba(154,120,60,.16), inset -14px 0 22px -16px rgba(255,252,240,.9); }
+
+/* faint illustration watermark behind recipe text */
+.watermark{
+  position:absolute; right:1.7em; bottom:2em; width:9.5em; height:9.5em;
+  color:rgba(156,124,46,.14); pointer-events:none; z-index:0;
+}
+.page.--left .watermark{ right:auto; left:1.7em; transform:scaleX(-1); }
 
 .folio{
   position:absolute; bottom:.9em; left:0; right:0; text-align:center;
@@ -169,6 +206,8 @@ body::before{
 .corner-boota{ position:absolute; width:1.7em; height:1.7em; color:rgba(156,124,46,.6); pointer-events:none; }
 .corner-boota.tl{ top:1.25em; left:1.25em; }
 .corner-boota.tr{ top:1.25em; right:1.25em; transform:scaleX(-1); }
+.corner-boota.bl{ bottom:1.25em; left:1.25em; transform:scaleY(-1); }
+.corner-boota.br{ bottom:1.25em; right:1.25em; transform:scale(-1); }
 
 .flow{ flex:1 1 auto; min-height:0; overflow:hidden; position:relative; z-index:1; }
 .runner{
@@ -180,13 +219,25 @@ body::before{
 /* ── cover ───────────────────────────────────────────────── */
 .page-cover .page-inner{
   background:
-    radial-gradient(130% 90% at 50% -10%, rgba(255,190,90,.14), transparent 60%),
+    /* leather grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23l)'/%3E%3C/svg%3E"),
+    radial-gradient(130% 90% at 50% -10%, rgba(255,190,90,.16), transparent 60%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3Cg fill='none' stroke='%23c9a548' stroke-width='.8' opacity='.16'%3E%3Cpath d='M45 6 C57 20 70 27 82 30 C70 46 57 64 45 84 C33 64 20 46 8 30 C20 27 33 20 45 6 Z'/%3E%3Ccircle cx='45' cy='45' r='6'/%3E%3C/g%3E%3C/svg%3E"),
     linear-gradient(160deg, #5d1a24 0%, var(--maroon) 55%, #35090f 100%);
   color:var(--ivory);
-  box-shadow:inset 0 0 90px rgba(0,0,0,.55);
+  box-shadow:
+    inset 0 0 90px rgba(0,0,0,.6),
+    inset 0 2px 0 rgba(255,220,150,.12),
+    inset 0 -3px 8px rgba(0,0,0,.5);
   align-items:center; justify-content:center; text-align:center;
 }
+.cover-garland{
+  position:absolute; left:50%; width:62%; aspect-ratio:220/52;
+  color:var(--marigold); opacity:.9; pointer-events:none;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));
+}
+.cover-garland.top{ top:2em; transform:translateX(-50%); }
+.cover-garland.bot{ bottom:2em; transform:translateX(-50%) scaleY(-1); }
 .page-cover .page-inner::before{
   inset:1.1em;
   border:2px solid var(--gold);
@@ -194,13 +245,16 @@ body::before{
   box-shadow:0 0 24px rgba(201,165,72,.25) inset;
 }
 .cover-medallion{
-  width:6.4em; height:6.4em; margin-bottom:1.4em; color:var(--gold-2);
+  width:7.2em; height:7.2em; margin-bottom:1.3em; color:var(--gold-2);
   border:2px solid var(--gold); border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 0 0 5px rgba(201,165,72,.25), 0 0 30px rgba(201,165,72,.25);
-  background:radial-gradient(circle at 50% 35%, rgba(231,205,133,.18), transparent 70%);
+  box-shadow:
+    0 0 0 5px rgba(201,165,72,.25),
+    0 0 34px rgba(201,165,72,.3),
+    inset 0 3px 10px rgba(0,0,0,.45);
+  background:radial-gradient(circle at 50% 32%, rgba(231,205,133,.2), transparent 72%);
 }
-.cover-medallion svg{ width:60%; height:60%; }
+.cover-medallion svg{ width:72%; height:62%; }
 .cover-hindi{ font-family:var(--hindi); font-size:2.1em; color:var(--gold-2); text-shadow:0 2px 4px rgba(0,0,0,.5); }
 .cover-title{ font-family:var(--display); font-size:1.9em; letter-spacing:.1em; margin:.35em 0 .2em; }
 .cover-family{ font-family:var(--serif); font-style:italic; font-size:1.25em; color:var(--gold-2); }
@@ -210,6 +264,7 @@ body::before{
 
 /* ── dedication ──────────────────────────────────────────── */
 .page-dedication .flow{ display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.ded-garland{ width:15em; aspect-ratio:220/52; color:var(--marigold); opacity:.8; margin-bottom:1.1em; }
 .ded-hindi{ font-family:var(--hindi); font-size:1.35em; color:var(--maroon-2); margin-bottom:.7em; }
 .ded-family{ font-family:var(--display); font-size:1.4em; letter-spacing:.12em; color:var(--maroon); margin-bottom:1em; }
 .ded-text{ font-style:italic; font-size:1.12em; line-height:1.7; color:var(--ink); max-width:34ch; white-space:pre-wrap; }
@@ -217,8 +272,17 @@ body::before{
 .ded-edit-hint{ margin-top:1.6em; font-size:.8em; color:var(--ink-soft); font-style:italic; }
 
 /* ── table of contents ───────────────────────────────────── */
+.toc-motif{ display:block; width:4.4em; height:3.8em; margin:0 auto .35em; color:var(--gold-3); }
 .toc-title{ font-family:var(--display); font-size:1.5em; text-align:center; letter-spacing:.14em; color:var(--maroon); margin-bottom:.15em; }
 .toc-sub{ text-align:center; font-family:var(--hindi); color:var(--gold-3); font-size:1em; margin-bottom:1.2em; }
+.toc-row{ display:flex; align-items:center; gap:.45em; }
+.toc-row .toc-entry{ flex:1; min-width:0; }
+.toc-edit{
+  flex:none; border:1px solid rgba(156,124,46,.55); background:rgba(201,165,72,.12);
+  color:var(--maroon-2); border-radius:.3em; cursor:pointer;
+  font-size:.85em; padding:.18em .5em; font-family:var(--serif);
+}
+.toc-edit:hover{ background:var(--gold-2); }
 .toc-entry{
   display:flex; align-items:baseline; gap:.5em; width:100%;
   font-size:1.06em; padding:.34em .1em; cursor:pointer;
@@ -269,14 +333,15 @@ body::before{
 }
 .hero-fig .arch{ max-width:72%; }
 
-/* screen-only edit controls on the story page */
-.r-tools{ position:absolute; top:.4em; right:.6em; display:flex; gap:.3em; z-index:3; opacity:0; transition:opacity .2s; }
-.page-inner:hover .r-tools{ opacity:1; }
+/* edit controls on the story page — always visible (touch has no hover) */
+.r-tools{ position:absolute; top:1.15em; right:1.3em; display:flex; gap:.35em; z-index:3; }
 .r-tools button{
-  border:1px solid rgba(156,124,46,.55); background:rgba(246,237,219,.92);
-  color:var(--ink); border-radius:.3em; cursor:pointer; font-size:.8em; padding:.2em .45em;
+  border:1px solid rgba(156,124,46,.6); background:rgba(246,237,219,.94);
+  color:var(--maroon-2); border-radius:.35em; cursor:pointer; font-size:.78em;
+  padding:.24em .55em; font-family:var(--serif);
+  box-shadow:0 1px 3px rgba(90,60,20,.25);
 }
-.r-tools button:hover{ background:var(--gold-2); }
+.r-tools button:hover{ background:var(--gold-2); color:var(--maroon); }
 
 /* ── recipe body pages ───────────────────────────────────── */
 .chips{ display:flex; justify-content:center; gap:.6em; flex-wrap:wrap; margin-bottom:1em; }

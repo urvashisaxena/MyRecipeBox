@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#4a1119" />
 <title>रसोई की विरासत · MyRecipeBox</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%234a1119'/%3E%3Cg fill='none' stroke='%23e7cd85' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 24 h15 l-2 17 h-11 Z'/%3E%3Cpath d='M41 30 h13'/%3E%3Cpath d='M37 46 q10 6 21 0'/%3E%3Cpath d='M47 18 c-3 -4 3 -6 0 -10'/%3E%3Cpath d='M8 46 L19 27 L30 46 Z'/%3E%3Cpath d='M23 46 L33 33 L43 46'/%3E%3Cpath d='M6 53 h52'/%3E%3C/g%3E%3C/svg%3E" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -26,11 +26,67 @@
       <path d="M20 4 C26 10 30 16 30 23 A10 10 0 1 1 10 23 C10 16 14 10 20 4 Z" fill="none" stroke="currentColor" stroke-width="2.4"/>
       <circle cx="20" cy="24" r="3" fill="currentColor"/>
     </symbol>
+    <!-- chai & samosas — the book's logo -->
+    <symbol id="chai-samosa" viewBox="0 0 140 110">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M97 27 c-4 -6 4 -9 0 -17"/>
+        <path d="M108 27 c-4 -6 4 -9 0 -17"/>
+        <path d="M88 34 h29 l-3.5 36 h-22 Z"/>
+        <path d="M90.5 46 h24"/>
+        <path d="M82 76 q20.5 11 41 0"/>
+        <path d="M14 76 L36 40 L58 76 Z"/>
+        <path d="M36 42 q4 17 -2 34" stroke-width="2"/>
+        <path d="M19 76 h34" stroke-width="4.5" stroke-dasharray="1 6.6"/>
+        <path d="M46 76 L68 49 L88 76"/>
+        <path d="M8 85 h124" opacity=".75"/>
+        <path d="M22 93 h96" opacity=".4"/>
+      </g>
+    </symbol>
+    <!-- diya (oil lamp) -->
+    <symbol id="diya" viewBox="0 0 100 80">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 54 Q50 68 84 54 Q67 45 50 47 Q33 45 16 54 Z"/>
+        <path d="M30 64 Q50 71 70 64"/>
+        <path d="M50 18 C57 28 59 37 50 45 C41 37 43 28 50 18 Z"/>
+        <path d="M50 27 c2.4 4 2.6 7.5 0 11 c-2.6 -3.5 -2.4 -7 0 -11" stroke-width="1.8"/>
+        <path d="M26 26 l5 5 M74 26 l-5 5 M50 6 v6" stroke-width="2.2"/>
+      </g>
+    </symbol>
+    <!-- degchi (cooking pot) -->
+    <symbol id="degchi" viewBox="0 0 110 92">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M45 18 c-4 -6 4 -8 0 -15"/>
+        <path d="M65 18 c-4 -6 4 -8 0 -15"/>
+        <path d="M30 36 Q55 22 80 36"/>
+        <circle cx="55" cy="25" r="3.6"/>
+        <path d="M25 40 h60"/>
+        <path d="M30 40 C26 60 34 76 55 76 C76 76 84 60 80 40"/>
+        <path d="M25 45 q-8 4 0 10 M85 45 q8 4 0 10" stroke-width="2.4"/>
+      </g>
+    </symbol>
+    <!-- genda (marigold) garland swag -->
+    <symbol id="genda" viewBox="0 0 220 52">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M6 8 Q110 56 214 8"/>
+        <path d="M28 17 q6 -7 12 -2 M180 15 q6 -5 12 2" stroke-width="1.6"/>
+        <g>
+          <circle cx="6" cy="10" r="5"/><circle cx="6" cy="10" r="2.4" stroke-dasharray="1.6 2"/>
+          <circle cx="42" cy="22" r="6.4"/><circle cx="42" cy="22" r="3" stroke-dasharray="1.6 2"/>
+          <circle cx="76" cy="30" r="7.4"/><circle cx="76" cy="30" r="3.6" stroke-dasharray="1.6 2"/>
+          <circle cx="110" cy="33" r="8.4"/><circle cx="110" cy="33" r="4.2" stroke-dasharray="1.6 2"/>
+          <circle cx="144" cy="30" r="7.4"/><circle cx="144" cy="30" r="3.6" stroke-dasharray="1.6 2"/>
+          <circle cx="178" cy="22" r="6.4"/><circle cx="178" cy="22" r="3" stroke-dasharray="1.6 2"/>
+          <circle cx="214" cy="10" r="5"/><circle cx="214" cy="10" r="2.4" stroke-dasharray="1.6 2"/>
+        </g>
+        <path d="M59 25 q-2 8 4 12 M127 32 q2 8 -4 12" stroke-width="1.6"/>
+      </g>
+    </symbol>
   </defs>
 </svg>
 
 <header class="topbar">
   <div class="brand">
+    <svg class="brand-logo" aria-hidden="true"><use href="#chai-samosa"/></svg>
     <span class="brand-hindi">रसोई</span>
     <span class="brand-en">MyRecipeBox <em>· a family heirloom</em></span>
   </div>
@@ -48,6 +104,7 @@
     <div id="book-shadow" aria-hidden="true"></div>
     <div id="book-edges-left" class="book-edges" aria-hidden="true"></div>
     <div id="book-edges-right" class="book-edges" aria-hidden="true"></div>
+    <div id="book-bottom" aria-hidden="true"></div>
     <div id="book"></div>
   </div>
   <button id="nav-next" class="nav-arrow" type="button" aria-label="Next page">›</button>
@@ -55,7 +112,7 @@
 
 <footer class="pagebar">
   <span id="page-indicator">—</span>
-  <span class="pagebar-hint">drag a page corner, or use ← → · click a recipe in the index to jump</span>
+  <span class="pagebar-hint">drag a page corner or use ← → · tap the index to jump · ✎ on any recipe page to edit</span>
 </footer>
 
 <!-- offscreen measurer for pagination -->
